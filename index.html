@@ -5,12 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portfolio Benn</title>
   <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
-    .fade-up { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+    body { cursor: none; }
+
+    /* Animated gradient */
+    .bg-animated {
+      background: linear-gradient(-45deg, #0f172a, #1e293b, #020617, #111827);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+    }
+
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Fade animation */
+    .fade-up { opacity: 0; transform: translateY(40px); transition: all 0.8s ease; }
     .fade-up.show { opacity: 1; transform: translateY(0); }
+
+    /* Custom cursor */
+    .cursor-dot, .cursor-outline {
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+    }
+
+    .cursor-dot {
+      width: 6px;
+      height: 6px;
+      background: white;
+    }
+
+    .cursor-outline {
+      width: 30px;
+      height: 30px;
+      border: 1px solid white;
+      transition: all 0.15s ease;
+    }
+
+    /* Parallax */
+    .parallax { transform: translateY(0px); transition: transform 0.2s ease-out; }
+
   </style>
 </head>
-<body class="bg-gray-900 text-white font-sans">
+
+<body class="bg-animated text-white font-sans">
+
+  <!-- Cursor -->
+  <div class="cursor-dot"></div>
+  <div class="cursor-outline"></div>
 
   <!-- Navbar -->
   <nav class="flex justify-between items-center p-6 max-w-6xl mx-auto fade-up">
@@ -23,16 +72,17 @@
   </nav>
 
   <!-- Hero -->
-  <section class="text-center py-20 fade-up">
+  <section class="text-center py-24 fade-up">
     <h2 class="text-4xl font-bold mb-4">Halo, Saya Benn 👋</h2>
-    <p class="text-gray-400">Web Developer & Excel Automation</p>
-    <a href="#projects" class="inline-block mt-6 px-6 py-2 bg-white text-black rounded-full hover:scale-105 transition">Lihat Project</a>
+    <p class="text-gray-300 text-lg">
+      <span id="typing"></span>
+    </p>
   </section>
 
   <!-- About -->
   <section id="about" class="max-w-4xl mx-auto px-6 py-16 fade-up">
     <h3 class="text-2xl font-semibold mb-4">Tentang Saya</h3>
-    <p class="text-gray-400">Saya fokus membuat website modern dan automasi Excel untuk membantu bisnis lebih efisien.</p>
+    <p class="text-gray-300">Saya fokus membuat website modern dan automasi Excel untuk membantu bisnis lebih efisien.</p>
   </section>
 
   <!-- Projects -->
@@ -40,18 +90,18 @@
     <h3 class="text-2xl font-semibold mb-10 fade-up">Project</h3>
 
     <div class="grid md:grid-cols-3 gap-6">
-      
-      <div class="bg-gray-800 p-4 rounded-xl fade-up hover:scale-105 transition">
+
+      <div class="bg-gray-800 p-4 rounded-xl fade-up parallax">
         <h4 class="font-bold">Website Toko</h4>
         <p class="text-gray-400 text-sm">E-commerce sederhana</p>
       </div>
 
-      <div class="bg-gray-800 p-4 rounded-xl fade-up hover:scale-105 transition">
+      <div class="bg-gray-800 p-4 rounded-xl fade-up parallax">
         <h4 class="font-bold">Aplikasi Kasir</h4>
         <p class="text-gray-400 text-sm">POS berbasis web</p>
       </div>
 
-      <div class="bg-gray-800 p-4 rounded-xl fade-up hover:scale-105 transition">
+      <div class="bg-gray-800 p-4 rounded-xl fade-up parallax">
         <h4 class="font-bold">Excel Automation</h4>
         <p class="text-gray-400 text-sm">Otomatisasi laporan</p>
       </div>
@@ -62,15 +112,44 @@
   <!-- Contact -->
   <section id="contact" class="text-center py-16 fade-up">
     <h3 class="text-2xl font-semibold mb-4">Contact</h3>
-    <p class="text-gray-400">Email: benn@email.com</p>
+    <p class="text-gray-300">Email: benn@email.com</p>
   </section>
 
   <!-- Footer -->
-  <footer class="text-center py-6 text-gray-500 fade-up">
+  <footer class="text-center py-6 text-gray-400 fade-up">
     © 2026 Benn
   </footer>
 
   <script>
+    // Typing effect
+    const text = ["Web Developer", "Automation Specialist", "Freelancer"];
+    let i = 0, j = 0, current = "", isDeleting = false;
+    const speed = 100;
+
+    function type() {
+      current = text[i];
+      if (isDeleting) {
+        document.getElementById("typing").textContent = current.substring(0, j--);
+      } else {
+        document.getElementById("typing").textContent = current.substring(0, j++);
+      }
+
+      if (!isDeleting && j === current.length) {
+        isDeleting = true;
+        setTimeout(type, 1000);
+        return;
+      }
+
+      if (isDeleting && j === 0) {
+        isDeleting = false;
+        i = (i + 1) % text.length;
+      }
+
+      setTimeout(type, isDeleting ? 50 : speed);
+    }
+    type();
+
+    // Scroll animation
     const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -78,8 +157,29 @@
         }
       });
     });
-
     document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // Custom cursor
+    const dot = document.querySelector('.cursor-dot');
+    const outline = document.querySelector('.cursor-outline');
+
+    window.addEventListener('mousemove', e => {
+      dot.style.top = e.clientY + 'px';
+      dot.style.left = e.clientX + 'px';
+
+      outline.style.top = e.clientY + 'px';
+      outline.style.left = e.clientX + 'px';
+    });
+
+    // Parallax effect
+    window.addEventListener('scroll', () => {
+      document.querySelectorAll('.parallax').forEach(el => {
+        let speed = 0.2;
+        let offset = window.scrollY * speed;
+        el.style.transform = `translateY(${offset}px)`;
+      });
+    });
+
   </script>
 
 </body>
